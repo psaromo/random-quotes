@@ -3,10 +3,13 @@ import { FaQuoteLeft, FaQuoteRight } from "react-icons/fa";
 import { AiFillCopy, AiFillTwitterSquare } from "react-icons/ai";
 import { CopyToClipboard } from "react-copy-to-clipboard";
 import styled from "styled-components";
+import toast from "react-hot-toast";
 
 const QuotePage = () => {
+	//State
 	const [quotes, setQuotes] = useState("");
 
+	//Fetch quotes api
 	const getQuote = async () => {
 		const data = await fetch("https://type.fit/api/quotes");
 		const details = await data.json();
@@ -14,9 +17,15 @@ const QuotePage = () => {
 		setQuotes(details[randomNum]);
 	};
 
+	//useEffect
 	useEffect(() => {
 		getQuote();
 	}, []);
+
+	//Toast
+	const notify = () => {
+		toast.success("Copied!", { duration: 1500 });
+	};
 
 	return (
 		<Wrapper>
@@ -28,23 +37,29 @@ const QuotePage = () => {
 						{quotes.text}
 						<FaQuoteRight />
 					</p>
+					<Author>—— {quotes.author}</Author>
 				</QuoteSection>
-				<Author>
-					<p>—— {quotes.author}</p>
-				</Author>
 
 				<BottomPart>
 					<Icons>
-						<CopyToClipboard text={quotes.text}>
-							<AiFillCopy />
-						</CopyToClipboard>
-						<a
-							href={`https://twitter.com/intent/tweet?text=${quotes.text} — ${quotes.author}`}
-							target='_blank'
-							rel='nooperner noreferrer'
+						<button
+							onClick={() => {
+								notify();
+							}}
 						>
-							<AiFillTwitterSquare />
-						</a>
+							<CopyToClipboard text={quotes.text}>
+								<AiFillCopy />
+							</CopyToClipboard>
+						</button>
+						<button>
+							<a
+								href={`https://twitter.com/intent/tweet?text=${quotes.text} — ${quotes.author}`}
+								target='_blank'
+								rel='nooperner noreferrer'
+							>
+								<AiFillTwitterSquare />
+							</a>
+						</button>
 					</Icons>
 
 					<Button onClick={getQuote}>New Quote</Button>
@@ -63,32 +78,36 @@ const Wrapper = styled.div`
 
 const QuoteCard = styled.div`
 	width: 40%;
-	height: 30rem;
 	background-color: white;
 	border-radius: 20px;
 	display: flex;
 	flex-direction: column;
 	justify-content: space-evenly;
 	padding: 0rem 5rem;
+	position: relative;
 	h1 {
 		display: flex;
 		justify-content: center;
+		padding: 1.5rem;
+		min-height: 10vh;
+		text-align: center;
 	}
-	@media (max-width: 1210px) {
-		width: 25rem;
+
+	/* MOBILE */
+	@media (min-width: 300px) {
+		width: 23rem;
 		padding: 0rem 3rem;
-		h1 {
-			text-align: center;
-		}
+	}
+	/* TABLET */
+	@media (min-width: 768px) {
+		width: 45rem;
 	}
 `;
+
 const QuoteSection = styled.div`
 	display: flex;
 	flex-direction: column;
-	justify-content: center;
-	align-items: center;
 	min-height: 10vh;
-
 	p {
 		font-size: 18px;
 		svg {
@@ -97,15 +116,15 @@ const QuoteSection = styled.div`
 		}
 	}
 `;
-const Author = styled.div`
+
+const Author = styled.span`
 	display: flex;
 	justify-content: flex-end;
-	margin-top: -4rem;
-	@media (max-width: 1210px) {
-		margin-top: -3rem;
-	}
+	padding: 2rem 0;
 `;
+
 const BottomPart = styled.div`
+	padding: 1.5rem 0;
 	display: flex;
 	justify-content: space-between;
 `;
@@ -129,8 +148,10 @@ const Icons = styled.div`
 		font-size: 2rem;
 		color: #333333;
 	}
-	/* a {
-		color: red;
-	} */
+	button {
+		background: none;
+		border: none;
+	}
 `;
+
 export default QuotePage;
